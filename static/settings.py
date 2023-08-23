@@ -1,6 +1,5 @@
 class Screen:
-    width = 540
-    height = 960
+    size = 540, 960
     fps = 60
 
 

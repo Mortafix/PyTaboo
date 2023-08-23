@@ -6,9 +6,9 @@ from utils.model import Mazzo, MazzoGioco
 
 # components
 bg = Image("assets/images/origami_bg.jpeg", 100, 100)
-title = Text("Seleziona i Mazzi", 50, 5, size=50, font=Font.semibold)
-btn_next = Button("confirm", 60, 90, 65)
-btn_back = Button("back", 15, 90, 10)
+title = Text("Seleziona i Mazzi", 50, font=Font.semibold)
+btn_next = Button("confirm", 65)
+btn_back = Button("back", 10)
 
 # decks
 words = {title: Mazzo(name, title) for name, title in Decks.options.items()}
@@ -24,11 +24,11 @@ deck_grid = DeckGrid(decks, 5)
 
 def run(screen, **kwargs):
     bg.draw(screen)
-    title.draw(screen)
+    title.draw(screen, 50, 5)
     deck_grid.draw(screen)
     if [words.get(deck.title) for deck in decks if deck.selected]:
-        btn_next.draw(screen)
-    btn_back.draw(screen)
+        btn_next.draw(screen, 60, 90)
+    btn_back.draw(screen, 15, 90)
 
 
 def manage_event(event, game, game_settings, **kwargs):
@@ -49,3 +49,9 @@ def manage_event(event, game, game_settings, **kwargs):
         return
     if btn_back.handle_event(event):
         return "custom-game"
+
+
+def resize(_):
+    bg.resize(100, 100)
+    btn_next.resize()
+    btn_back.resize()

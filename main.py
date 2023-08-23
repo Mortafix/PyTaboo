@@ -10,7 +10,6 @@ from utils.model import Game, GameSettings
 pygame.init()
 clock = pygame.time.Clock()
 pygame.display.set_caption("Taboo")
-SCREEN = pygame.display.set_mode((Screen.width, Screen.height))
 
 # game
 STATES = {
@@ -27,6 +26,7 @@ GAME_SETTINGS = GameSettings()
 
 
 async def main():
+    screen = pygame.display.set_mode(Screen.size)
     state = "menu"
     kwargs = {"game": GAME, "game_settings": GAME_SETTINGS}
     while True:
@@ -36,8 +36,12 @@ async def main():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+            elif event.type == pygame.VIDEORESIZE:
+                width, height = event.w, event.h
+                screen = pygame.display.set_mode((width, height))
+                page.resize(screen)
             state = page.manage_event(event, **kwargs) or state
-        page.run(SCREEN, **kwargs)
+        page.run(screen, **kwargs)
         pygame.display.update()
         await asyncio.sleep(0)
 

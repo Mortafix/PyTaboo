@@ -4,14 +4,18 @@ import pygame
 from static.settings import Colors, Screen
 
 
-def relative_position(x=None, y=None):
-    x = x and Screen.width * x / 100
-    y = y and Screen.height * y / 100
+def relative_position(screen, x=None, y=None):
+    width, height = Screen.size
+    if screen:
+        width, height = screen.get_size()
+    x = x and width * x / 100
+    y = y and height * y / 100
     return x, y
 
 
 def relative_size(width=None, height=None):
-    return relative_position(width, height)
+    screen = pygame.display.get_surface()
+    return relative_position(screen, width, height)
 
 
 # ---- base
@@ -33,19 +37,20 @@ class BaseComponent:
 
 
 class Text(BaseComponent):
-    def __init__(self, text, x, y, size=42, color=Colors.BLACK, font=Font.regular):
+    def __init__(self, text, size=42, color=Colors.BLACK, font=Font.regular):
         self.text = str(text)
-        self.x, self.y = relative_position(x, y)
         self.size = size
         self.color = color
         self.font_file = font
 
-    def draw(self, screen):
+    def draw(self, screen, x, y):
+        self.x, self.y = relative_position(screen, x, y)
         font = pygame.font.Font(self.font_file, self.size)
         title_surf = font.render(self.text, True, self.color)
         screen.blit(title_surf, (self.x - title_surf.get_width() // 2, self.y))
 
-    def draw_multi(self, screen, max_width):
+    def draw_multi(self, screen, x, y, max_width):
+        self.x, self.y = relative_position(screen, x, y)
         max_width, _ = relative_size(max_width)
         font = pygame.font.Font(self.font_file, self.size)
         line_spacing = font.get_linesize()
@@ -84,17 +89,17 @@ class Image(BaseComponent):
 
     def draw(self, screen, x=0, y=0, relative=False):
         if relative:
-            relx, rely = relative_position(x, y)
+            relx, rely = relative_position(screen, x, y)
             x, y = relx - self.width // 2, rely - self.height // 2
         screen.blit(self.background, (x, y))
 
     def resize(self, width, height=None, aspect_ratio=False):
         if aspect_ratio:
             self.old_width = self.width
-            self.width, _ = relative_position(width)
+            self.width, _ = relative_size(width)
             self.height = self.width * self.height / self.old_width
         else:
-            self.width, self.height = relative_position(width, height)
+            self.width, self.height = relative_size(width, height)
         self.background = pygame.transform.smoothscale(
             self.background, (self.width, self.height)
         )
@@ -105,16 +110,16 @@ class Image(BaseComponent):
 
 
 class Button(BaseComponent):
-    def __init__(self, button, x, y, width=100, value=None):
+    def __init__(self, button, width=100, value=None):
         self.value = value
-        self.x, self.y = relative_position(x, y)
+        self.relativ_width = width
         self.image = Image(f"assets/buttons/{button}.png")
-        self.image.resize(width, aspect_ratio=True)
-        self.width, self.height = self.image.width, self.image.height
+        self.resize()
+
+    def draw(self, screen, x, y):
+        self.x, self.y = relative_position(screen, x, y)
         self.x -= self.width // 2
         self.y -= self.height // 2
-
-    def draw(self, screen):
         self.image.draw(screen, self.x, self.y)
 
     def handle_event(self, event):
@@ -124,10 +129,14 @@ class Button(BaseComponent):
                 return True
         return False
 
+    def resize(self):
+        self.image.resize(self.relativ_width, aspect_ratio=True)
+        self.width, self.height = self.image.width, self.image.height
+
 
 class SelectableButton(Button):
-    def __init__(self, button, x, y, width=100, value=None):
-        super().__init__(button, x, y, width, value)
+    def __init__(self, button, width=100, value=None):
+        super().__init__(button, width, value)
         self.button_normal = self.image
         self.button_select = Image(f"assets/buttons/{button}_select.png")
         self.button_select.resize(width, aspect_ratio=True)
@@ -141,7 +150,7 @@ class SelectableButton(Button):
         self.selected = False
         self.image = self.button_normal
 
-    def draw(self, screen):
+    def draw(self, screen, x, y):
         self.image.draw(screen, self.x, self.y)
 
     def handle_event(self, event):
@@ -160,24 +169,26 @@ class ButtonGroup(BaseComponent):
         self.buttons = list()
         if button_texts:
             self.buttons = [
-                SelectableButton(file, 0, y, 15, value) for file, value in button_texts
+                SelectableButton(file, 15, value) for file, value in button_texts
             ]
             self.buttons[index].select()
 
-    def _reposition_buttons(self):
+    def _reposition_buttons(self, screen):
         total_buttons_width = sum([btn.width for btn in self.buttons])
         total_spacing_width = self.spacing * (len(self.buttons) - 1)
         total_width = total_buttons_width + total_spacing_width
         # calculate offset
-        x_offset = (Screen.width - total_width) / 2
+        x_offset = (screen.get_size()[0] - total_width) / 2
         for btn in self.buttons:
+            _, btn.y = relative_position(screen, y=self.y)
+            btn.y -= btn.height // 2
             btn.x = x_offset
             x_offset += btn.width + self.spacing
 
     def draw(self, screen):
-        self._reposition_buttons()
+        self._reposition_buttons(screen)
         for btn in self.buttons:
-            btn.draw(screen)
+            btn.draw(screen, btn.y, btn.y)
 
     def handle_event(self, event):
         for btn in self.buttons:
@@ -187,6 +198,11 @@ class ButtonGroup(BaseComponent):
                 btn.select()
                 return btn.value
         return None
+
+    def resize(self, screen):
+        for btn in self.buttons:
+            btn.resize()
+        self._reposition_buttons(screen)
 
 
 # ---- Deck
@@ -259,8 +275,8 @@ class DeckGrid(BaseComponent):
         self.decks_per_page = self.rows * self.cols
         self.total_pages = ceil(len(self.decks) / self.decks_per_page)
         # buttons
-        self.prev_button = Button("grid_left", 7, 50, 7)
-        self.next_button = Button("grid_right", 93, 50, 7)
+        self.prev_button = Button("grid_left", 7)
+        self.next_button = Button("grid_right", 7)
 
     def draw(self, screen):
         for i, y in enumerate(self.ys):
@@ -270,16 +286,16 @@ class DeckGrid(BaseComponent):
                 if offset + index < len(self.decks):
                     deck = self.decks[offset + index]
                     deck.x, deck.y = relative_position(
-                        x - self.spacing // 2, y + self.y
+                        screen, x - self.spacing // 2, y + self.y
                     )
                     deck.x -= deck.width // 2
                     deck.y -= deck.height // 2
                     deck.draw(screen)
         # buttons
         if self.current_page > 0:
-            self.prev_button.draw(screen)
+            self.prev_button.draw(screen, 7, 50)
         if self.current_page < self.total_pages - 1:
-            self.next_button.draw(screen)
+            self.next_button.draw(screen, 93, 50)
 
     def handle_event(self, event):
         # navigation buttons
@@ -300,14 +316,15 @@ class DeckGrid(BaseComponent):
 
 
 class LoadingBar(BaseComponent):
-    def __init__(self, x, y, width, height=4, fill=100):
-        self.x, self.y = relative_position(x, y)
+    def __init__(self, width, height=4, fill=100):
+        self.original_width, self.original_height = width, height
         self.width, self.height = relative_size(width, height)
-        self.x -= self.width // 2
-        self.y -= self.height // 2
         self.fill = 1
 
-    def draw(self, screen, bg=Colors.GRAY_S, color=Colors.BLACK):
+    def draw(self, screen, x, y, bg=Colors.GRAY_S, color=Colors.BLACK):
+        self.x, self.y = relative_position(screen, x, y)
+        self.x -= self.width // 2
+        self.y -= self.height // 2
         pygame.draw.rect(screen, bg, (self.x, self.y, self.width, self.height))
         width_remaining = self.fill
         pygame.draw.rect(
@@ -316,20 +333,29 @@ class LoadingBar(BaseComponent):
             (self.x, self.y, width_remaining * self.width, self.height),
         )
 
+    def resize(self):
+        self.width, self.height = relative_size(
+            self.original_width, self.original_height
+        )
+
 
 # ---- Shapes
 
 
 class Rectangle(BaseComponent):
-    def __init__(self, x, y, width, height, rounded=False, trasparent=False):
-        self.x, self.y = relative_position(x, y)
+    def __init__(self, width, height, rounded=False, trasparent=False):
         filename = "assets/shape/rectangle"
         filename += "_round" if rounded else ""
         filename += "_trasp" if trasparent else ""
         filename += ".png"
+        self.original_width, self.original_height = width, height
         self.image = Image(filename, width, height)
+
+    def draw(self, screen, x, y):
+        self.x, self.y = relative_position(screen, x, y)
         self.x -= self.image.width // 2
         self.y -= self.image.height // 2
-
-    def draw(self, screen):
         self.image.draw(screen, self.x, self.y)
+
+    def resize(self):
+        self.image.resize(self.original_width, self.original_height)

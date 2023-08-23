@@ -3,37 +3,35 @@ from utils.components import Button, ButtonGroup, Font, Image, Rectangle, Text
 
 # components
 bg = Image("assets/images/origami_bg.jpeg", 100, 100)
-title = Text("Personalizzazione", 50, 5, size=50, font=Font.semibold)
-text_duration = Text("Durata", 50, 20, color=Colors.BLACK)
-text_skip = Text("Skip", 50, 40)
-text_winner = Text("Punti vittoria", 50, 60)
+title = Text("Personalizzazione", 50, font=Font.semibold)
+text_duration = Text("Durata", color=Colors.BLACK)
+text_skip = Text("Skip")
+text_winner = Text("Punti vittoria")
 duration_btns = [(f"duration_{duration}", duration) for duration in Duration.options]
 skip_btns = [(f"skip_{skip}", skip) for skip in Skip.options]
 points_btns = [(f"points_{points}", points) for points in Winner.options]
 group_durations = ButtonGroup(duration_btns, 30, index=2)
 group_skip = ButtonGroup(skip_btns, 50, index=2)
 group_winner = ButtonGroup(points_btns, 70)
-btn_next = Button("confirm", 60, 90, 65)
-btn_back = Button("back", 15, 90, 10)
-shape_square_1 = Rectangle(50, 27, 90, 20, trasparent=True)
-shape_square_2 = Rectangle(50, 47, 90, 20, trasparent=True)
-shape_square_3 = Rectangle(50, 67, 90, 20, trasparent=True)
+btn_next = Button("confirm", 65)
+btn_back = Button("back", 10)
+shape_square = Rectangle(90, 20, trasparent=True)
 
 
 def run(screen, **kwargs):
     bg.draw(screen)
-    shape_square_1.draw(screen)
-    shape_square_2.draw(screen)
-    shape_square_3.draw(screen)
-    text_duration.draw(screen)
-    text_skip.draw(screen)
-    text_winner.draw(screen)
-    title.draw(screen)
+    shape_square.draw(screen, 50, 27)
+    shape_square.draw(screen, 50, 47)
+    shape_square.draw(screen, 50, 67)
+    text_duration.draw(screen, 50, 20)
+    text_skip.draw(screen, 50, 40)
+    text_winner.draw(screen, 50, 60)
+    title.draw(screen, 50, 5)
     group_durations.draw(screen)
     group_skip.draw(screen)
     group_winner.draw(screen)
-    btn_next.draw(screen)
-    btn_back.draw(screen)
+    btn_next.draw(screen, 60, 90)
+    btn_back.draw(screen, 15, 90)
 
 
 def manage_event(event, game, game_settings, **kwargs):
@@ -52,3 +50,13 @@ def manage_event(event, game, game_settings, **kwargs):
         return "select-decks"
     if btn_back.handle_event(event):
         return "new-game"
+
+
+def resize(screen):
+    bg.resize(100, 100)
+    group_durations.resize(screen)
+    group_skip.resize(screen)
+    group_winner.resize(screen)
+    btn_next.resize()
+    btn_back.resize()
+    shape_square.resize()
