@@ -2,7 +2,7 @@ from static.settings import Colors, Duration, Skip, Winner
 from utils.components import Button, ButtonGroup, Font, Image, Rectangle, Text
 
 # components
-bg = Image("assets/images/origami.png", 100, 100)
+bg = Image("assets/images/origami_bg.jpeg", 100, 100)
 title = Text("Personalizzazione", 50, 5, size=50, font=Font.semibold)
 text_duration = Text("Durata", 50, 20, color=Colors.BLACK)
 text_skip = Text("Skip", 50, 40)

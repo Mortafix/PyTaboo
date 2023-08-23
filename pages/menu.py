@@ -1,7 +1,7 @@
 from utils.components import Button, Image
 
 # components
-bg = Image("assets/images/origami.png", 100, 100)
+bg = Image("assets/images/origami.jpeg", 100, 100)
 btn_new_game = Button("play", 50, 50, 70)
 btn_rules = Button("rules", 50, 90, 10)
 

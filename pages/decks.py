@@ -5,7 +5,7 @@ from utils.components import Button, Deck, DeckGrid, Font, Image, Text
 from utils.model import Mazzo, MazzoGioco
 
 # components
-bg = Image("assets/images/origami.png", 100, 100)
+bg = Image("assets/images/origami_bg.jpeg", 100, 100)
 title = Text("Seleziona i Mazzi", 50, 5, size=50, font=Font.semibold)
 btn_next = Button("confirm", 60, 90, 65)
 btn_back = Button("back", 15, 90, 10)

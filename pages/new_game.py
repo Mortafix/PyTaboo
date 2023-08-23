@@ -1,7 +1,7 @@
 from utils.components import Button, Font, Image, Text
 
 # components
-bg = Image("assets/images/origami_bg.png", 100, 100)
+bg = Image("assets/images/origami_bg.jpeg", 100, 100)
 title = Text("Modalità", 50, 5, size=50, font=Font.semibold)
 btn_base = Button("base_game", 50, 30, 80)
 btn_custom = Button("custom_game", 50, 50, 80)
