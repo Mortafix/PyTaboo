@@ -1,6 +1,6 @@
 from random import choice
 
-from static.settings import Colors
+from static.settings import Colors, Screen
 from utils.components import Button, Font, Image, LoadingBar, Rectangle, Text
 
 # components
@@ -56,12 +56,13 @@ def run(screen, game, game_settings, **kwargs):
     bar_color = Colors.RED if game.first_team else Colors.BLUE
     loading_timer.draw(screen, 50, 14, color=bar_color)
     if game.turn_start and not game.pause:
-        game.remaining_time -= 1 / 60
+        game.remaining_time -= 1 / Screen.fps
         if game.remaining_time <= 0:
             game.turn_start = False
             game.first_team = not game.first_team
             game.remaining_time = game_settings.duration
             game.turn += 1
+            game.deck.next_word()
     loading_timer.fill = game.remaining_time / game_settings.duration
     time_m, time_s = divmod(game.remaining_time, 60)
     Text(f"{time_m:.0f}:{int(time_s):02d}", 48, Colors.GRAY_S).draw(screen, 50, 5)
