@@ -2,7 +2,7 @@ import asyncio
 import sys
 
 import pygame
-from pages import custom, decks, game, menu, new_game
+from pages import custom, decks, game, menu, new_game, rules
 from static.settings import Screen
 from utils.model import Game, GameSettings
 
@@ -14,6 +14,7 @@ pygame.display.set_caption("Taboo")
 # game
 STATES = {
     "menu": menu,
+    "rules": rules,
     "new-game": new_game,
     "custom-game": custom,
     "select-decks": decks,

@@ -16,7 +16,7 @@ def manage_event(event, **kwargs):
     if btn_new_game.handle_event(event):
         return "new-game"
     if btn_rules.handle_event(event):
-        return  # TODO: state missing
+        return "rules"
 
 
 def resize(_):
