@@ -2,12 +2,14 @@ from utils.components import Button, Image
 
 # components
 bg = Image("assets/images/origami.jpeg", 100, 100)
+title = Image("assets/images/title.png").resize(80, aspect_ratio=True)
 btn_new_game = Button("play", 70)
 btn_rules = Button("rules", 10)
 
 
 def run(screen, **kwargs):
     bg.draw(screen)
+    title.draw(screen, 50, 11, relative=True)
     btn_new_game.draw(screen, 50, 50)
     btn_rules.draw(screen, 50, 90)
 
