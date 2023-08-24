@@ -103,7 +103,7 @@ def run(screen, game, game_settings, **kwargs):
         btn_correct.draw(screen, 82, 90)
     if not game.turn_start:
         Text(f"Turno {game.turn}", 60, Colors.WHITE, Font.bold).draw(screen, 50, 45)
-        team_text = "Squadra" + ("ROSSA" if game.first_team else "BLU")
+        team_text = "Squadra " + ("ROSSA" if game.first_team else "BLU")
         Text(team_text, color=Colors.WHITE, font=Font.bold).draw(screen, 50, 55)
         btn_start.draw(screen, 50, 85)
 
