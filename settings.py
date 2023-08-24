@@ -1,6 +1,6 @@
 class Screen:
     size = 540, 960
-    fps = 29
+    fps = 20
 
 
 class Duration:
