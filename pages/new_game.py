@@ -3,8 +3,8 @@ from utils.components import Button, Font, Image, Text
 # components
 bg = Image("assets/images/origami_bg.jpeg", 100, 100)
 title = Text("Modalità", size=50, font=Font.semibold)
-btn_base = Button("base_game", 80)
-btn_custom = Button("custom_game", 80)
+btn_base = Button("base_game", 80, sound="interface")
+btn_custom = Button("custom_game", 80, sound="interface")
 btn_back = Button("back", 10)
 
 
@@ -18,12 +18,8 @@ def run(screen, **kwargs):
 
 def manage_event(event, game, game_settings, **kwargs):
     if btn_base.handle_event(event):
-        game_settings.duration = 120
-        game.remaining_time = 120
-        game_settings.skips = 5
-        game.skip_red = 5
-        game.skip_blue = 5
-        game_settings.points_to_win = 10
+        game.reset()
+        game_settings.reset()
         return "game"
     if btn_custom.handle_event(event):
         return "custom-game"

@@ -3,6 +3,8 @@ from math import ceil
 import pygame
 from static.settings import Colors, Screen
 
+pygame.mixer.init()
+
 
 def relative_position(screen, x=None, y=None):
     width, height = Screen.size
@@ -106,14 +108,31 @@ class Image(BaseComponent):
         return self
 
 
+class Sound:
+    def __init__(self, name):
+        filename = f"assets/sound/{name}.ogg"
+        self.name = name
+        self.sound = pygame.mixer.Sound(filename)
+
+    def play(self):
+        self.sound.play()
+
+    def pause(self):
+        self.sound.pause()
+
+    def unpause(self):
+        self.sound.unpause()
+
+
 # ---- Buttons
 
 
 class Button(BaseComponent):
-    def __init__(self, button, width=100, value=None):
+    def __init__(self, button, width=100, value=None, sound="button"):
         self.value = value
         self.relativ_width = width
         self.image = Image(f"assets/buttons/{button}.png")
+        self.sound = sound and Sound(sound)
         self.resize()
 
     def draw(self, screen, x, y):
@@ -126,6 +145,8 @@ class Button(BaseComponent):
         if event.type == pygame.MOUSEBUTTONDOWN:
             x, y = pygame.mouse.get_pos()
             if self.x < x < self.x + self.width and self.y < y < self.y + self.height:
+                if self.sound:
+                    self.sound.play()
                 return True
         return False
 
@@ -167,6 +188,7 @@ class ButtonGroup(BaseComponent):
         self.spacing = spacing
         self.size = size
         self.buttons = list()
+        self.start_index = index
         if button_texts:
             self.buttons = [
                 SelectableButton(file, 15, value) for file, value in button_texts
@@ -198,6 +220,11 @@ class ButtonGroup(BaseComponent):
                 btn.select()
                 return btn.value
         return None
+
+    def reset(self):
+        for btn in self.buttons:
+            btn.deselect()
+        self.buttons[self.start_index].select()
 
     def resize(self, screen):
         for btn in self.buttons:
@@ -313,6 +340,10 @@ class DeckGrid(BaseComponent):
             if deck.handle_event(event):
                 return deck
         return None
+
+    def reset(self):
+        for deck in self.decks:
+            deck.selected = False
 
 
 class LoadingBar(BaseComponent):

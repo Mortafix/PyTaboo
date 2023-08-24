@@ -1,22 +1,25 @@
 from random import choice
 
 from static.settings import Colors, Screen
-from utils.components import Button, Font, Image, LoadingBar, Rectangle, Text
+from utils.components import (Button, Font, Image, LoadingBar, Rectangle,
+                              Sound, Text)
 
 # components
 loading_timer = LoadingBar(70)
 scoreboard = Rectangle(95, 17)
 card_word = Rectangle(80, 60, trasparent=True)
 winner_tab = Rectangle(95, 70)
-btn_skip = Button("word_skip", 30)
-btn_skip_end = Button("word_skip_end", 30)
-btn_error = Button("word_wrong", 30)
-btn_correct = Button("word_correct", 30)
-btn_start = Button("go", 30)
+btn_skip = Button("word_skip", 30, sound="skip")
+btn_skip_end = Button("word_skip_end", 30, sound=None)
+btn_error = Button("word_wrong", 30, sound="error")
+btn_correct = Button("word_correct", 30, sound="success")
+btn_start = Button("go", 30, sound="start")
 btn_pause = Button("pause", 8)
 btn_resume = Button("resume", 65)
 btn_quit = Button("quit", 45)
 btn_menu = Button("menu", 45)
+countdown_sound = Sound("countdown")
+winner_sound = Sound("winner")
 
 
 def run(screen, game, game_settings, **kwargs):
@@ -24,6 +27,9 @@ def run(screen, game, game_settings, **kwargs):
 
     # winner
     if not game.turn_start and (winner := winning_condition(game, game_settings)):
+        if not game.winner_sound:
+            winner_sound.play()
+            game.winner_sound = True
         winner_text = "ROSSA" if winner == "t-red" else "BLU"
         winner_color = Colors.RED if winner == "t-red" else Colors.BLUE
         screen.fill(winner_color)
@@ -134,7 +140,7 @@ def manage_event(event, game, game_settings, **kwargs):
                 game.error_blue += 1
             game.deck.next_word()
         is_skippable = game.skip_red != 0 if game.first_team else game.skip_blue != 0
-        if btn_skip.handle_event(event) and is_skippable:
+        if is_skippable and btn_skip.handle_event(event):
             if game.first_team:
                 game.skip_red -= 1
             else:

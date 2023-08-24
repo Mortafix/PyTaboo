@@ -54,11 +54,12 @@ class Game:
         self.first_team = True
         self.skip_red = 10
         self.skip_blue = 10
-        self.remaining_time = 120
+        self.remaining_time = 7
         self.turn_start = False
         self.turn = 1
         self.pause = False
         self.end = False
+        self.winner_sound = False
 
 
 class GameSettings:
@@ -68,6 +69,6 @@ class GameSettings:
     def reset(self):
         self.decks = ALL_DECKS
         self.decks = list()
-        self.duration = 120
+        self.duration = 7
         self.skips = 10
         self.points_to_win = 10

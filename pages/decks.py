@@ -45,9 +45,11 @@ def manage_event(event, game, game_settings, **kwargs):
             game_settings.decks = selected_decks
             game.deck = MazzoGioco(selected_decks)
             game.deck.next_word()
+            deck_grid.reset()
             return "game"
         return
     if btn_back.handle_event(event):
+        deck_grid.reset()
         return "custom-game"
 
 

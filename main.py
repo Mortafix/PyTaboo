@@ -35,6 +35,7 @@ async def main():
         page = STATES.get(state)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                pygame.mixer.quit()
                 pygame.quit()
                 sys.exit()
             elif event.type == pygame.VIDEORESIZE:

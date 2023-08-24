@@ -47,8 +47,14 @@ def manage_event(event, game, game_settings, **kwargs):
     if winner := group_winner.handle_event(event):
         game_settings.points_to_win = Winner.options.get(winner)
     if btn_next.handle_event(event):
+        group_durations.reset()
+        group_skip.reset()
+        group_winner.reset()
         return "select-decks"
     if btn_back.handle_event(event):
+        group_durations.reset()
+        group_skip.reset()
+        group_winner.reset()
         return "new-game"
 
 
