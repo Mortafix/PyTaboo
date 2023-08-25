@@ -1,5 +1,6 @@
 from functools import reduce
-from random import choice
+from random import choice, seed
+from time import time
 
 from static.settings import Decks
 from yaml import safe_load
@@ -26,6 +27,7 @@ class MazzoGioco:
         self.taboo = list()
 
     def next_word(self):
+        seed(time())
         if not self.words:
             return
         new_word = choice(self.words)
@@ -54,7 +56,7 @@ class Game:
         self.first_team = True
         self.skip_red = 10
         self.skip_blue = 10
-        self.remaining_time = 7
+        self.remaining_time = 120
         self.turn_start = False
         self.turn = 1
         self.pause = False
@@ -69,6 +71,6 @@ class GameSettings:
     def reset(self):
         self.decks = ALL_DECKS
         self.decks = list()
-        self.duration = 7
+        self.duration = 120
         self.skips = 10
         self.points_to_win = 10
